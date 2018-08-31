@@ -3,6 +3,7 @@ import restify from 'restify';
 import bunyan from 'bunyan';
 import { Pool, Client } from 'pg';
 import corsMiddleware from 'restify-cors-middleware';
+import commands from './commands';
 
 // Setup logging
 const log = bunyan.createLogger({
@@ -56,54 +57,16 @@ server.use(async (req, res, next) => {
 });
 
 // Define routes
-server.post('/slash', async (req, res, next) => {
-  const { token, channel_id, user_id, command, text } = req.body;
+server.post('/slash', (req, res, next) => {
+  const { token, command } = req.body;
 
-  if (command !== '/attendance') {
+  const func = commands[command];
+  if (!func) {
     res.send(200, { text: "Sorry, I don't understand that command." });
     return next();
   }
 
-  if (/^\s*$/.test(text)) {
-    const result = await req.client.query('\
-      SELECT "people_count"\
-      FROM "attendance"\
-      WHERE "channel_id" = $1\
-      ORDER BY "day" DESC\
-      LIMIT 1', [channel_id]);
-
-    if (result.rows.length === 0) {
-      res.send(200, {
-        text: "No attendance has been recorded",
-        response_type: 'in_channel'
-      });
-      return next();
-    }
-
-    const { people_count } = result.rows[0];
-    res.send(200, {
-      text: `Your last workout had ${people_count} people!`,
-      response_type: 'in_channel'
-    });
-    return next();
-  }
-
-  const num = text.split(" ").map(s => parseInt(s, 10)).find( n => !isNaN(n));
-
-  if (num) {
-    await req.client.query('\
-      INSERT INTO "attendance" ("channel_id", "user_id", "people_count")\
-      VALUES ($1, $2, $3)', [channel_id, user_id, num]);
-
-    res.send(200, {
-      text: `Thanks <@${user_id}>! Wow, ${num} people. Great Work!`,
-      response_type: 'in_channel'
-    });
-    return next();
-  } else {
-    res.send(200, { text: "Couldn't find the number of people. Try again?" });
-    return next();
-  }
+  return func(req, res, next);
 });
 
 // Setup audit log

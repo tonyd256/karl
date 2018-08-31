@@ -17,6 +17,8 @@
     "db-migrate": "^0.11.1",
     "db-migrate-pg": "^0.4.0",
     "dotenv": "^6.0.0",
+    "lodash": "^4.17.10",
+    "moment": "^2.22.2",
     "nodemon": "^1.18.4",
     "pg": "^7.4.3",
     "restify": "^7.2.1",
