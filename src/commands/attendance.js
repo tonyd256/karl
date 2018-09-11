@@ -27,7 +27,9 @@ const stats = async (req, res, next) => {
   const result = await req.client.query('\
     SELECT "people_count", "day"\
     FROM "attendance"\
-    WHERE "channel_id" = $1\
+    WHERE\
+      "channel_id" = $1 AND\
+      "created_at" >= now() - interval \'30 days\'\
     ORDER BY "day" DESC\
     ', [channel_id]);
 
@@ -39,8 +41,7 @@ const stats = async (req, res, next) => {
     return next();
   }
 
-  const now = moment();
-  const counts = result.rows.map( row => ({
+  const last30Days = result.rows.map( row => ({
     count: row.people_count,
     day: moment(row.day)
   }));
@@ -48,8 +49,6 @@ const stats = async (req, res, next) => {
   const fields = [];
 
   // 30 day average
-  const daysAgo30 = now.subtract(30, 'days');
-  const last30Days = counts.filter( c => c.day.isAfter(daysAgo30));
   fields.push({
     title: 'Total',
     short: true,
