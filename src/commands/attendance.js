@@ -6,7 +6,7 @@ const attendance = async (req, res, next) => {
 
   // If command activated with no options, return stats.
   if (/^\s*$/.test(text)) {
-    return stats(req, res, next);
+    return getStats(req, res, next);
   }
 
   // Otherwise try to find a number in the text.
@@ -22,7 +22,7 @@ const attendance = async (req, res, next) => {
   }
 };
 
-const stats = async (req, res, next) => {
+const getStats = async (req, res, next) => {
   const { channel_id } = req.body;
   const result = await req.client.query('\
     SELECT "people_count", "day"\
@@ -84,6 +84,7 @@ const stats = async (req, res, next) => {
     response_type: 'in_channel',
     attachments: [
       {
+        fallback: 'Upgrade your Slack client to use messages like these.',
         fields
       }
     ]
@@ -93,6 +94,29 @@ const stats = async (req, res, next) => {
 
 const addStat = async (req, res, next, num) => {
   const { channel_id, user_id } = req.body;
+
+  const day = moment().day();
+  if (day !== 1 && day !== 3 && day !== 5) {
+    res.send(200, {
+      response_type: 'in_channel',
+      attachments: [
+        {
+          text: `Which day would you like to record ${num} people for?`,
+          fallback: 'Upgrade your Slack client to use messages like these.',
+          attachment_type: 'default',
+          color: '#3AA3E3',
+          callback_id: 'record_attendance_date_selection',
+          actions: [
+            {
+              text: '',
+              value: ''
+            }
+          ]
+        }
+      ]
+    });
+    return next();
+  }
 
   // Update number if recorded twice
   await req.client.query('\
