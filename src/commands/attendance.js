@@ -1,3 +1,4 @@
+import config from '../config';
 import moment from 'moment';
 import _ from 'lodash';
 
@@ -84,7 +85,8 @@ const stats = async (req, res, next) => {
     response_type: 'in_channel',
     attachments: [
       {
-        fields
+        fields,
+        image_url: `${config.apiUrl}/charts/${channel_id}/${moment().format('YYYY-MM-DD')}/image.png`
       }
     ]
   });

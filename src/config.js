@@ -12,11 +12,13 @@ const config = {
   },
   development: {
     databaseURL: 'postgres://localhost/karl_db',
-    port: 3030
+    port: 3030,
+    apiUrl: 'http://localhost:3030'
   },
   production: {
     databaseURL: process.env.DATABASE_URL,
-    port: process.env.PORT
+    port: process.env.PORT,
+    apiUrl: process.env.API_URL
   }
 };
 

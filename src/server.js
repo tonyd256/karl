@@ -4,6 +4,7 @@ import bunyan from 'bunyan';
 import { Pool, Client } from 'pg';
 import corsMiddleware from 'restify-cors-middleware';
 import commands from './commands';
+import routes from './routes';
 
 // Setup logging
 const log = bunyan.createLogger({
@@ -68,6 +69,8 @@ server.post('/slash', (req, res, next) => {
 
   return func(req, res, next);
 });
+
+server.get('/charts/:channel/:date_text/image.png', routes.charts);
 
 // Setup audit log
 server.on('after', restify.plugins.auditLogger({
