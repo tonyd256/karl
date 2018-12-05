@@ -1,4 +1,5 @@
 import Chart from 'chartjs-node';
+import moment from 'moment';
 
 const charts = async function (req, res, next) {
   try {
@@ -11,22 +12,57 @@ const charts = async function (req, res, next) {
       ORDER BY "day" DESC\
       ', [req.params.channel, req.params.date_text]);
 
+    const data = result.rows.map( row => ({
+      x: moment(row.day),
+      y: row.people_count
+    }));
+
+    var datasets = [{
+      label: 'Overall',
+      data: data,
+      borderColor: '#1e88e5',
+      borderWidth: 3,
+      fill: false
+    }];
+
+    const friData = data.filter( c => c.x.format('d') === '5');
+    if (friData.length > 0) {
+      datasets.push({
+        label: 'Friday',
+        data: friData,
+        borderColor: '#689f38',
+        borderWidth: 3,
+        fill: false
+      });
+    }
+
+    const wedData = data.filter( c => c.x.format('d') === '3');
+    if (wedData.length > 0) {
+      datasets.push({
+        label: 'Wednesday',
+        data: wedData,
+        borderColor: '#7b1fa2',
+        borderWidth: 3,
+        fill: false
+      });
+    }
+
+    const monData = data.filter( c => c.x.format('d') === '1');
+    if (monData.length > 0) {
+      datasets.push({
+        label: 'Monday',
+        data: monData,
+        borderColor: '#f4511e',
+        borderWidth: 3,
+        fill: false
+      });
+    }
+
     const chart = new Chart(600, 400);
     chart.drawChart({
       type: 'line',
       data: {
-        datasets: [
-          {
-            label: 'Overall - Past 30 Days',
-            data: result.rows.map( row => ({
-              x: new Date(row.day),
-              y: row.people_count
-            })),
-            borderColor: '#1e88e5',
-            borderWidth: 3,
-            fill: false
-          }
-        ]
+        datasets: datasets.reverse()
       },
       options: {
         responsive: false,
