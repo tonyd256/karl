@@ -5,6 +5,12 @@ to do many things. If you have ideas, talk to Tony (Karl’s teacher).
 
 ## What he can do
 
+### Cheat Sheet
+
+Track Attendance: `/attendance 67`
+Show 30 day averages: /attendance`
+Show X day averages: `/attendance stats X`
+
 ### Attendance Tracking
 
 Karl can track your workout attendance. I know numbers are not everything but
@@ -60,14 +66,14 @@ First, clone the repo, `git clone git@github.com:tonyd256/karl.git`.
 
 Before you install the dependencies, you'll need to install [Cairo] which is
 needed for rendering the charts. At time of writing, this project uses version
-1.16.0.
+1.16.0. Via Homebrew `brew install cairo`.
 
 [Cairo]: https://www.cairographics.org
 
 Now you can install the other dependencies, `yarn install` or `npm install`.
 
 This project uses [PostgreSQL], so make sure that's running and create the
-database by running `createdb karl_db`.
+database by executing `createdb karl_db`.
 
 [PostgreSQL]: https://www.postgresql.org/
 
