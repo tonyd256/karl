@@ -73,7 +73,8 @@ needed for rendering the charts. At time of writing, this project uses version
 Now you can install the other dependencies, `yarn install` or `npm install`.
 
 This project uses [PostgreSQL], so make sure that's running and create the
-database by executing `createdb karl_db`.
+database by executing `createdb karl_db`. Then run `npx db-migrate up` to setup
+the database.
 
 [PostgreSQL]: https://www.postgresql.org/
 
