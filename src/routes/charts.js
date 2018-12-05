@@ -11,7 +11,7 @@ const charts = async function (req, res, next) {
       ORDER BY "day" DESC\
       ', [req.params.channel, req.params.date_text]);
 
-    const chart = new Chart(800, 400);
+    const chart = new Chart(600, 400);
     chart.drawChart({
       type: 'line',
       data: {
@@ -34,10 +34,6 @@ const charts = async function (req, res, next) {
         scales: {
           yAxes: [{
             display: true,
-            scaleLabel: {
-              display: true,
-              labelString: 'Avg People'
-            },
             ticks: {
               beginAtZero: true
             }
