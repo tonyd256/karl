@@ -8,9 +8,9 @@ const charts = async function (req, res, next) {
       FROM "attendance"\
       WHERE\
         "channel_id" = $1 AND\
-        "created_at" >= to_date($2, \'YYYY-MM-DD\') - interval \'30 days\'\
+        "day" >= to_date($2, \'YYYY-MM-DD\') - (interval \'1 days\' * $3)\
       ORDER BY "day" DESC\
-      ', [req.params.channel, req.params.date_text]);
+      ', [req.params.channel, req.params.date_text, parseInt(req.query.days, 10) || 30]);
 
     const data = result.rows.map( row => ({
       x: moment(row.day),
@@ -91,7 +91,9 @@ const charts = async function (req, res, next) {
         return next();
       });
   } catch (e) {
-    console.log(e);
+    console.error(e);
+    res.send(500);
+    return next();
   }
 };
 
