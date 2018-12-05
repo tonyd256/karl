@@ -7,9 +7,9 @@ to do many things. If you have ideas, talk to Tony (Karl’s teacher).
 
 ### Cheat Sheet
 
-Track Attendance: `/attendance 67`
-Show 30 day averages: /attendance`
-Show X day averages: `/attendance stats X`
+- Track Attendance: `/attendance 67`
+- Show 30 day averages: `/attendance`
+- Show X day averages: `/attendance stats X`
 
 ### Attendance Tracking
 
