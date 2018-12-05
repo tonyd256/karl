@@ -6,7 +6,7 @@ const attendance = async (req, res, next) => {
   const { text } = req.body;
 
   // If command activated with no options, return stats.
-  if (/^\s*$/.test(text)) {
+  if (/^\s*$/.test(text) || /^stats/.test(text)) {
     return stats(req, res, next);
   }
 
@@ -24,15 +24,17 @@ const attendance = async (req, res, next) => {
 };
 
 const stats = async (req, res, next) => {
-  const { channel_id } = req.body;
+  const { text, channel_id } = req.body;
+  const days = text.split(" ").map(s => parseInt(s, 10)).find( n => !isNaN(n)) || 30;
+
   const result = await req.client.query('\
     SELECT "people_count", "day"\
     FROM "attendance"\
     WHERE\
       "channel_id" = $1 AND\
-      "created_at" >= now() - interval \'30 days\'\
+      "day" >= now() - (interval \'1 days\' * $2)\
     ORDER BY "day" DESC\
-    ', [channel_id]);
+    ', [channel_id, days]);
 
   if (result.rows.length === 0) {
     res.send(200, {
@@ -42,51 +44,51 @@ const stats = async (req, res, next) => {
     return next();
   }
 
-  const last30Days = result.rows.map( row => ({
+  const lastDays = result.rows.map( row => ({
     count: row.people_count,
     day: moment(row.day)
   }));
 
   const fields = [];
 
-  // 30 day average
+  // x day average
   fields.push({
     title: 'Total',
     short: true,
-    value: _.sumBy(last30Days, 'count') / last30Days.length
+    value: _.sumBy(lastDays, 'count') / lastDays.length
   });
 
-  // 30 day Mon average
-  const last30DaysMon = last30Days.filter( c => c.day.format('d') === '1');
-  last30DaysMon.length === 0 ? null : fields.push({
+  // x day Mon average
+  const lastDaysMon = lastDays.filter( c => c.day.format('d') === '1');
+  lastDaysMon.length === 0 ? null : fields.push({
     title: 'Mondays',
     short: true,
-    value: _.sumBy(last30DaysMon, 'count') / last30DaysMon.length
+    value: _.sumBy(lastDaysMon, 'count') / lastDaysMon.length
   });
 
-  // 30 day Wed average
-  const last30DaysWed = last30Days.filter( c => c.day.format('d') === '3');
-  last30DaysWed.length === 0 ? null : fields.push({
+  // x day Wed average
+  const lastDaysWed = lastDays.filter( c => c.day.format('d') === '3');
+  lastDaysWed.length === 0 ? null : fields.push({
     title: 'Wednesdays',
     short: true,
-    value: _.sumBy(last30DaysWed, 'count') / last30DaysWed.length
+    value: _.sumBy(lastDaysWed, 'count') / lastDaysWed.length
   });
 
-  // 30 day Fri average
-  const last30DaysFri = last30Days.filter( c => c.day.format('d') === '5');
-  last30DaysFri.length === 0 ? null : fields.push({
+  // x day Fri average
+  const lastDaysFri = lastDays.filter( c => c.day.format('d') === '5');
+  lastDaysFri.length === 0 ? null : fields.push({
     title: 'Fridays',
     short: true,
-    value: _.sumBy(last30DaysFri, 'count') / last30DaysFri.length
+    value: _.sumBy(lastDaysFri, 'count') / lastDaysFri.length
   });
 
   res.send(200, {
-    text: 'Here\'s your attendance stats for the last 30 days',
+    text: `Here's your attendance stats for the last ${days} days`,
     response_type: 'in_channel',
     attachments: [
       {
         fields,
-        image_url: `${config.apiUrl}/charts/${channel_id}/${moment().format('YYYY-MM-DD')}/image.png`
+        image_url: `${config.apiUrl}/charts/${channel_id}/${moment().format('YYYY-MM-DD')}/image.png?days=${days}`
       }
     ]
   });
