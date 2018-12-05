@@ -30,9 +30,9 @@ last 60 day averages. You can replace `60` with any number.
 
 #### Example
 
-[[https://github.com/tonyd256/karl/blob/master/images/karl-tracking.png|alt=Karl Tracking]]
+![Karl Tracking](https://github.com/tonyd256/karl/blob/master/images/karl-tracking.png)
 
-[[https://github.com/tonyd256/karl/blob/master/images/karl-stats.png|alt=Karl Stats]]
+![Karl Stats](https://github.com/tonyd256/karl/blob/master/images/karl-stats.png)
 
 ## Potential
 
@@ -108,6 +108,4 @@ about how slash commands work with Slack, check [this out].
 # License
 
 Karl is Copyright (c) 2018 Anthony DiPasquale. It is free software, and may be
-redistributed under the terms specified in the [LICENSE] file.
-
-[LICENSE]: https://github.com/tonyd256/karl/blob/master/LICENSE
+redistributed under the terms specified in the [LICENSE](LICENSE) file.
