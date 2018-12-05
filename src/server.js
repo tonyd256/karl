@@ -64,6 +64,7 @@ server.post('/slash', (req, res, next) => {
   const func = commands[command];
   if (!func) {
     res.send(200, { text: "Sorry, I don't understand that command." });
+    res.client.release();
     return next();
   }
 

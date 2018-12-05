@@ -1,3 +1,4 @@
+import errors from 'restify-errors';
 import Chart from 'chartjs-node';
 import moment from 'moment';
 
@@ -17,13 +18,13 @@ const charts = async function (req, res, next) {
       y: row.people_count
     }));
 
-    var datasets = [{
-      label: 'Overall',
-      data: data,
-      borderColor: '#1e88e5',
-      borderWidth: 3,
-      fill: false
-    }];
+    var datasets = [];//[{
+    //   label: 'Overall',
+    //   data: data,
+    //   borderColor: '#1e88e5',
+    //   borderWidth: 3,
+    //   fill: false
+    // }];
 
     const friData = data.filter( c => c.x.format('d') === '5');
     if (friData.length > 0) {
@@ -91,9 +92,10 @@ const charts = async function (req, res, next) {
         return next();
       });
   } catch (e) {
-    console.error(e);
-    res.send(500);
-    return next();
+    req.log.error(e);
+    return next(new errors.InternalServerError());
+  } finally {
+    req.client.release();
   }
 };
 
