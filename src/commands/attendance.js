@@ -132,7 +132,7 @@ const addStat = async (req, res, next, num, dateString) => {
     ', [channel_id, user_id, num, date.isValid() ? date.toDate() : null]);
 
     res.send(200, {
-      text: `Thanks <@${user_id}>! ${num} people recorded.`,
+      text: `Thanks <@${user_id}>! ${num} people recorded${date.isValid() ? ` for ${date.format('MM/DD/YYYY')}` : ''}.`,
       response_type: 'in_channel'
     });
     return next();
