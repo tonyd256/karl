@@ -8,6 +8,7 @@ to do many things. If you have ideas, talk to Tony (Karl’s teacher).
 ### Cheat Sheet
 
 - Track Attendance: `/attendance 67`
+- Track Attendance with Date: `/attendance 67 12/5/2018`
 - Show 30 day averages: `/attendance`
 - Show X day averages: `/attendance stats X`
 
@@ -22,8 +23,13 @@ will be lost from your data.
 
 Karl will associate the number you type with the day you enter it. So Wednesday
 after the workout, track your attendance then! If you forget and it’s Thursday,
-entering that command will track it for Thursday which will be lost. More on
-this later.
+entering that command will track it for Thursday which will be lost. You can
+specify the date for this head count just after the head count, like so
+`/attendance 67 12/5/2018`. Acceptable date formats are `12/5/2018`,
+`12-5-2018`, `12/5`, and `12-5`. Note that the month is first, then the day
+(sorry everywhere that isn't the US). Also, if you do not specify a year, it
+will assume the current year so be aware of that when the year changes and
+you're trying to change a previous day.
 
 Karl will overwrite successive entries. If you enter `/attendance 142` but then
 realize you actually only had 50 people show up, no problem! Enter, `/attendance
