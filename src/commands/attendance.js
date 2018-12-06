@@ -6,28 +6,27 @@ import _ from 'lodash';
 const attendance = async (req, res, next) => {
   const { text } = req.body;
 
-  // If command activated with no options, return stats.
-  if (/^\s*$/.test(text) || /^stats/.test(text)) {
-    return stats(req, res, next);
-  }
-
   // Otherwise try to find a number in the text.
-  const num = text.split(" ").map(s => parseInt(s, 10)).find( n => !isNaN(n));
+  const options = text.split(' ');
 
-  // If there is a number, record it.
-  if (num) {
-    return addStat(req, res, next, num);
+  if (options.length > 0) {
+    if (!isNaN(parseInt(options[0], 10))) {
+      return addStat(req, res, next, parseInt(options[0], 10), options[1]);
+    } else if (options.length > 0 && options[0] === 'stats') {
+      return stats(req, res, next, parseInt(options[1], 10) || 30);
+    }
   } else {
-    // If couldn't find a number then return an error message.
-    res.send(200, { text: "Couldn't find the number of people. Try again?" });
-    req.client.release();
-    return next();
+    return stats(req, res, next, 30);
   }
+
+  // If couldn't find a number then return an error message.
+  res.send(200, { text: "I couldn't understand what you're trying to do. Try again?" });
+  req.client.release();
+  return next();
 };
 
-const stats = async (req, res, next) => {
+const stats = async (req, res, next, days) => {
   const { text, channel_id } = req.body;
-  const days = text.split(" ").map(s => parseInt(s, 10)).find( n => !isNaN(n)) || 30;
 
   try {
     const result = await req.client.query('\
@@ -104,18 +103,33 @@ const stats = async (req, res, next) => {
   }
 };
 
-const addStat = async (req, res, next, num) => {
+const dateFormats = [
+  'M-D-YYYY',
+  'M/D/YYYY',
+  'M/D',
+  'M-D'
+];
+
+const addStat = async (req, res, next, num, dateString) => {
   const { channel_id, user_id } = req.body;
+
+  if (dateString && !moment(dateString, dateFormats, true).isValid()) {
+    res.send(200, { text: "I couldn't understand the date you entered. Try again?" });
+    req.client.release();
+    return next();
+  }
+
+  const date = moment(dateString, dateFormats, true);
 
   try {
     // Update number if recorded twice
     await req.client.query('\
-      INSERT INTO "attendance" ("channel_id", "user_id", "people_count")\
-      VALUES ($1, $2, $3)\
+      INSERT INTO "attendance" ("channel_id", "user_id", "people_count", "day")\
+      VALUES ($1, $2, $3, COALESCE($4, now()))\
       ON CONFLICT\
       ON CONSTRAINT "attendance_channel_day"\
       DO UPDATE SET "people_count" = $3\
-    ', [channel_id, user_id, num]);
+    ', [channel_id, user_id, num, date.isValid() ? date.toDate() : null]);
 
     res.send(200, {
       text: `Thanks <@${user_id}>! ${num} people recorded.`,
